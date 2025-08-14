@@ -306,6 +306,53 @@ tbody td{ padding:14px 16px }
   .textfield input[type="search"]{ padding:12px 44px }
   thead th, tbody td{ padding:12px 14px }
 }
+/* ==== Gutter & Safe-area cho toàn trang ==== */
+:root{
+  --page-pad-min: 14px;              /* mobile */
+  --page-pad-max: 24px;              /* desktop */
+}
+
+html, body { height: 100%; }
+body{
+  /* đệm trên/dưới + safe area cho iPhone */
+  padding-top: calc(10px + env(safe-area-inset-top));
+  padding-bottom: calc(14px + env(safe-area-inset-bottom));
+}
+
+/* Lề trái/phải linh hoạt theo màn hình */
+.container, .wrap, main, .page {
+  padding-inline: clamp(var(--page-pad-min), 4vw, var(--page-pad-max));
+}
+
+/* Top app bar và phần trong bar cũng có đệm ngang */
+.topbar-inner{
+  padding-left: clamp(var(--page-pad-min), 4vw, var(--page-pad-max));
+  padding-right: clamp(var(--page-pad-min), 4vw, var(--page-pad-max));
+}
+
+/* Card/bảng có đệm xíu để không dính sát viền container */
+.card{ margin-top: 16px; border-radius: 16px; }
+.table-wrap{ padding: 0 6px; } /* thêm rìa khi scroll ngang */
+
+/* Ô bảng rộng rãi hơn một chút */
+thead th{ padding: 14px 16px; }
+tbody td{ padding: 14px 16px; }
+
+/* === Card view (mobile ≤ 640px) — thêm đệm đều quanh mỗi thẻ === */
+@media (max-width:640px){
+  table{ border-collapse: separate; border-spacing: 0 12px; }
+  tbody tr{
+    margin: 12px 0;
+    padding: 12px 14px;          /* đệm bên trong thẻ */
+    border-radius: 16px;
+  }
+  tbody td{ padding: 10px 0 !important; }
+}
+
+/* Nhỏ hơn nữa vẫn giữ đệm tối thiểu */
+@media (max-width:360px){
+  .textfield input[type="search"]{ padding: 12px 44px; }
+}
 
   </style>
 </head>
