@@ -260,6 +260,52 @@ thead th, tbody td{ min-width:120px }  /* tránh vỡ chữ quá mức */
   .sortgroup{ width:100% }
   .sortgroup select{ flex:1 }
 }
+/* === Ẩn sort dropdown trên desktop, chỉ hiện mobile === */
+.sortgroup{ display:none }                 /* mặc định ẩn */
+@media (max-width: 768px){                 /* mobile/tablet dọc */
+  .sortgroup{ display:flex; gap:8px; align-items:center; width:100% }
+  .sortgroup select{
+    flex:1; padding:12px 14px; border:1px solid var(--md3-outline);
+    border-radius:12px; background:var(--md3-surface-variant);
+  }
+  #sortDir{ padding:12px 14px }
+}
+
+/* === Gutter & padding tổng thể dễ thở hơn === */
+.container{ padding: 0 18px }              /* lề trái/phải cho nội dung */
+.toolbar{ gap:12px; margin:14px 0 18px }   /* thoáng hơn chút */
+.textfield input[type="search"]{ padding:14px 48px } /* input rộng rãi hơn */
+#count.chip{ padding:8px 12px }
+
+/* Bọc bảng: thêm chút đệm 2 bên khi scroll ngang */
+.table-wrap{ padding: 0 4px }
+
+/* Bảng (desktop) – tăng khoảng cách trong ô & header */
+thead th{ padding:14px 16px }              /* target lớn, dễ bấm sort */
+tbody td{ padding:14px 16px }
+
+/* Card view (≤640px) – tăng đệm, bo góc, khoảng cách các mục */
+@media (max-width:640px){
+  table{ border-collapse:separate; border-spacing:0 12px }
+  tbody tr{
+    padding:12px 14px;
+    margin:12px 0;
+    border-radius:16px;
+  }
+  tbody td{
+    padding:10px 0 !important;
+    grid-template-columns: 120px 1fr;      /* nhãn | nội dung */
+  }
+  tbody tr td:first-child{
+    font-size:16px; font-weight:700; padding-top:2px; margin-bottom:4px;
+  }
+}
+
+/* Nhỏ gọn nhưng vẫn thoáng hơn trên màn hình rất nhỏ */
+@media (max-width:360px){
+  .textfield input[type="search"]{ padding:12px 44px }
+  thead th, tbody td{ padding:12px 14px }
+}
 
   </style>
 </head>
