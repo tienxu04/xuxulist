@@ -249,6 +249,17 @@ thead th, tbody td{ min-width:120px }  /* tránh vỡ chữ quá mức */
     margin-bottom:4px;
   }
 }
+.sortgroup{ display:flex; gap:8px; align-items:center }
+.sortgroup select{
+  padding:10px 12px; border:1px solid var(--md3-outline);
+  border-radius:12px; background:var(--md3-surface-variant);
+}
+#sortDir{ padding:10px 12px }
+@media (max-width:640px){
+  .toolbar{ width:100% }
+  .sortgroup{ width:100% }
+  .sortgroup select{ flex:1 }
+}
 
   </style>
 </head>
@@ -261,6 +272,18 @@ thead th, tbody td{ min-width:120px }  /* tránh vỡ chữ quá mức */
     <input id="q" type="search" placeholder="Tìm theo tựa / tác giả / thể loại / quốc gia / review…" />
     <span class="count" id="count"></span>
   </div>
+<div class="sortgroup">
+  <select id="sortBy" aria-label="Sắp xếp theo">
+    <option value="title">Tựa</option>
+    <option value="genre">Thể loại</option>
+    <option value="author">Tác giả</option>
+    <option value="country">Quốc gia</option>
+    <option value="review">xuxu review</option>
+  </select>
+  <button id="sortDir" class="btn tonal" type="button" aria-label="Đổi thứ tự">
+    ↑ A–Z
+  </button>
+</div>
 
   <table id="table">
     <thead>
@@ -411,6 +434,8 @@ function render() {
     ind.textContent = sortState.dir === "asc" ? "▲" : "▼";
     thActive.appendChild(ind);
   }
+  syncSortUI();
+
 }
 
 
@@ -449,6 +474,30 @@ document.querySelectorAll("th[data-key]").forEach(th => {
 });
 
 function debounce(fn, ms=150){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); } }
+
+  const sortByEl  = document.getElementById("sortBy");
+const sortDirEl = document.getElementById("sortDir");
+
+function syncSortUI(){
+  // đồng bộ UI với trạng thái hiện tại
+  if (sortByEl) sortByEl.value = sortState.key;
+  if (sortDirEl) sortDirEl.textContent = (sortState.dir === "asc") ? "↑ A–Z" : "↓ Z–A";
+  if (sortDirEl) sortDirEl.setAttribute("aria-label", sortState.dir === "asc" ? "Đổi sang Z–A" : "Đổi sang A–Z");
+}
+
+if (sortByEl) {
+  sortByEl.addEventListener("change", () => {
+    sortState.key = sortByEl.value;
+    sortState.dir = "asc";           // mỗi lần đổi cột, reset asc cho dễ hiểu
+    applyFilterAndSort();
+  });
+}
+if (sortDirEl) {
+  sortDirEl.addEventListener("click", () => {
+    sortState.dir = (sortState.dir === "asc") ? "desc" : "asc";
+    applyFilterAndSort();
+  });
+}
 
 /** ====== Boot ====== **/
 (async function init() {
