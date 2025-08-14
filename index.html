@@ -2,7 +2,8 @@
 <html lang="vi">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
   <title>Thư mục Sách — xuxu</title>
 <style>
     /* ==== Material 3 · Matcha palette ==== */
@@ -196,6 +197,59 @@
       .container{margin-top:76px}
       thead th, tbody td{padding:10px 12px}
     }
+  /* Mobile polish chung */
+:root{ --gap:10px }
+body{ padding-bottom: env(safe-area-inset-bottom) }
+.topbar{ padding-top: env(safe-area-inset-top) }
+
+/* Bảng cuộn ngang mượt trên iOS */
+.table-wrap{ overflow:auto; -webkit-overflow-scrolling:touch }
+thead th, tbody td{ min-width:120px }  /* tránh vỡ chữ quá mức */
+
+/* Input & chip co giãn tốt */
+.toolbar{ display:flex; gap:var(--gap); flex-wrap:wrap }
+.toolbar .textfield{ flex:1 1 280px; min-width:200px }
+#count{ white-space:nowrap }
+
+/* === Card view (<= 640px): bảng biến thành danh sách thẻ đọc dễ hơn) === */
+@media (max-width:640px){
+  table{ border-collapse:separate; border-spacing:0 10px }
+  thead{ display:none }
+  tbody{ display:block }
+  tbody tr{
+    display:block;
+    background:#fff;
+    border:1px solid var(--md3-outline);
+    border-radius:14px;
+    box-shadow: var(--shadow-1);
+    padding:10px 12px;
+    margin:10px 0;
+  }
+  tbody td{
+    display:grid;
+    grid-template-columns: 108px 1fr;   /* Nhãn | Nội dung */
+    gap:8px;
+    border-bottom:none !important;
+    padding:8px 0 !important;
+  }
+  tbody td::before{
+    content: attr(data-label);
+    font-weight:600;
+    color: var(--md3-on-surface-variant);
+  }
+  /* Ưu tiên hiển thị tiêu đề to hơn, nằm đầu thẻ */
+  tbody tr td:first-child{ 
+    grid-template-columns: 1fr; 
+  }
+  tbody tr td:first-child::before{ 
+    content: none; 
+  }
+  tbody tr td:first-child{
+    font-size:16px; font-weight:700; padding-top:2px;
+    margin-bottom:4px;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -307,39 +361,58 @@ function render() {
   filtered.forEach(row => {
     const tr = document.createElement("tr");
 
+    // Tựa
     const tdTitle = document.createElement("td");
     tdTitle.textContent = row.title || "(Không tiêu đề)";
+    tdTitle.dataset.label = "Tựa";
     tr.appendChild(tdTitle);
 
+    // Thể loại
     const tdGenre = document.createElement("td");
     tdGenre.textContent = row.genre || "";
+    tdGenre.dataset.label = "Thể loại";
     tr.appendChild(tdGenre);
 
+    // Tác giả
     const tdAuthor = document.createElement("td");
     tdAuthor.textContent = row.author || "";
+    tdAuthor.dataset.label = "Tác giả";
     tr.appendChild(tdAuthor);
 
+    // Quốc gia
     const tdCountry = document.createElement("td");
     tdCountry.textContent = row.country || "";
+    tdCountry.dataset.label = "Quốc gia";
     tr.appendChild(tdCountry);
 
+    // xuxu review (tự linkify nếu có URL)
     const tdReview = document.createElement("td");
     tdReview.innerHTML = row.review ? linkify(row.review) : '<span class="muted">—</span>';
+    tdReview.dataset.label = "xuxu review";
     tr.appendChild(tdReview);
 
     tbody.appendChild(tr);
   });
+
+  // Đếm mục
   countEl.textContent = `${filtered.length} mục`;
-  // cập nhật mũi tên sort
-  document.querySelectorAll("th .sort-ind").forEach(e => e.remove());
-  const th = document.querySelector(`th[data-key="${sortState.key}"]`);
-  if (th) {
+
+  // Cập nhật aria-sort + mũi tên sort
+  document.querySelectorAll("th[data-key]").forEach(th => {
+    th.setAttribute("aria-sort", "none");
+    const ind = th.querySelector(".sort-ind");
+    if (ind) ind.remove();
+  });
+  const thActive = document.querySelector(`th[data-key="${sortState.key}"]`);
+  if (thActive) {
+    thActive.setAttribute("aria-sort", sortState.dir === "asc" ? "ascending" : "descending");
     const ind = document.createElement("span");
     ind.className = "sort-ind";
     ind.textContent = sortState.dir === "asc" ? "▲" : "▼";
-    th.appendChild(ind);
+    thActive.appendChild(ind);
   }
 }
+
 
 function applyFilterAndSort() {
   const q = diacriticless(document.getElementById("q").value);
