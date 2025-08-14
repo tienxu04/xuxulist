@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Thư mục Sách — xuxu</title>
+  <style>
+    :root { --br: 12px; }
+    body{font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin:24px;}
+    h1{margin:0 0 8px 0}
+    .toolbar{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:12px 0 16px}
+    input[type="search"]{padding:10px 12px; border:1px solid #ddd; border-radius: var(--br); min-width:280px}
+    .count{margin-left:auto; color:#555}
+    table{border-collapse:collapse; width:100%; font-size:14px}
+    th,td{border-bottom:1px solid #eee; padding:10px; vertical-align:top}
+    th{user-select:none; cursor:pointer; text-align:left; position:sticky; top:0; background:#fff}
+    tr:hover{background:#fafafa}
+    .muted{color:#777; font-size:12px}
+    .sort-ind{font-size:11px; opacity:.7; margin-left:6px}
+    .pill{display:inline-block; padding:2px 8px; border-radius:999px; background:#f3f4f6; margin-right:6px}
+    .wrap{max-width:1200px; margin:auto}
+    .small{font-size:12px; color:#666}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Thư mục sách</h1>
+  <div class="small">Nguồn: Google Sheets (read-only)</div>
+
+  <div class="toolbar">
+    <input id="q" type="search" placeholder="Tìm theo tựa / tác giả / thể loại / quốc gia / review…" />
+    <span class="count" id="count"></span>
+  </div>
+
+  <table id="table">
+    <thead>
+      <tr>
+        <th data-key="title">Tựa</th>
+        <th data-key="genre">Thể loại</th>
+        <th data-key="author">Tác giả</th>
+        <th data-key="country">Quốc gia</th>
+        <th data-key="review">xuxu review</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<script>
+/** ====== CONFIG ====== **/
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTl4QUkDw2-np7Nc8jxJcbtXeDuFDnnXV85ClQENI-uR9UBicTGyD76rgnUlv-kCH8n5xBR49-92ky/pub?output=csv";
+
+// Map cột trong Sheets -> field nội bộ
+const headerMap = {
+  "title": "Tựa",
+  "genre": "Thể loại",
+  "author": "Tác giả",
+  "country": "Quốc gia",
+  "review": "xuxu review"
+};
+
+/** ====== Helpers ====== **/
+const diacriticless = s => (s||"")
+  .toString()
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .toLowerCase();
+
+function parseCSV(text) {
+  // Parser CSV tối giản, hỗ trợ "ô có dấu phẩy/nháy"
+  const rows = [];
+  let i = 0, cur = [], cell = '', inQuotes = false;
+  const pushCell = () => { cur.push(cell); cell = '' };
+  const pushRow = () => { rows.push(cur); cur = [] };
+  while (i < text.length) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i+1] === '"') { cell += '"'; i++; }
+        else { inQuotes = false; }
+      } else { cell += c; }
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ',') pushCell();
+      else if (c === '\r') { /* skip */ }
+      else if (c === '\n') { pushCell(); pushRow(); }
+      else cell += c;
+    }
+    i++;
+  }
+  if (cell.length || cur.length) { pushCell(); pushRow(); }
+  return rows;
+}
+
+function rowsToObjects(rows) {
+  if (!rows.length) return [];
+  const header = rows[0].map(h => h.trim());
+  return rows.slice(1).map(r => {
+    const obj = {};
+    header.forEach((h, idx) => obj[h] = (r[idx] ?? "").trim());
+    return obj;
+  });
+}
+
+function mapRecord(rec) {
+  const out = {};
+  for (const key in headerMap) out[key] = rec[headerMap[key]] ?? "";
+  return out;
+}
+
+function linkify(text) {
+  if (!text) return "";
+  const urlRegex = /(https?:\/\/[^\s)]+)|(www\.[^\s)]+)/gi;
+  return text.replace(urlRegex, (m) => {
+    const url = m.startsWith('http') ? m : 'http://' + m;
+    return `<a href="${url}" target="_blank" rel="noopener">${m}</a>`;
+  });
+}
+
+/** ====== State ====== **/
+let data = [];
+let filtered = [];
+let sortState = { key: "title", dir: "asc" };
+
+/** ====== Render ====== **/
+const tbody = document.querySelector("#table tbody");
+const countEl = document.getElementById("count");
+
+function render() {
+  tbody.innerHTML = "";
+  filtered.forEach(row => {
+    const tr = document.createElement("tr");
+
+    const tdTitle = document.createElement("td");
+    tdTitle.textContent = row.title || "(Không tiêu đề)";
+    tr.appendChild(tdTitle);
+
+    const tdGenre = document.createElement("td");
+    tdGenre.textContent = row.genre || "";
+    tr.appendChild(tdGenre);
+
+    const tdAuthor = document.createElement("td");
+    tdAuthor.textContent = row.author || "";
+    tr.appendChild(tdAuthor);
+
+    const tdCountry = document.createElement("td");
+    tdCountry.textContent = row.country || "";
+    tr.appendChild(tdCountry);
+
+    const tdReview = document.createElement("td");
+    tdReview.innerHTML = row.review ? linkify(row.review) : '<span class="muted">—</span>';
+    tr.appendChild(tdReview);
+
+    tbody.appendChild(tr);
+  });
+  countEl.textContent = `${filtered.length} mục`;
+  // cập nhật mũi tên sort
+  document.querySelectorAll("th .sort-ind").forEach(e => e.remove());
+  const th = document.querySelector(`th[data-key="${sortState.key}"]`);
+  if (th) {
+    const ind = document.createElement("span");
+    ind.className = "sort-ind";
+    ind.textContent = sortState.dir === "asc" ? "▲" : "▼";
+    th.appendChild(ind);
+  }
+}
+
+function applyFilterAndSort() {
+  const q = diacriticless(document.getElementById("q").value);
+  filtered = data.filter(r => {
+    const hay = [
+      r.title, r.author, r.genre, r.country, r.review
+    ].map(diacriticless).join(" ");
+    return hay.includes(q);
+  });
+
+  const { key, dir } = sortState;
+  filtered.sort((a, b) => {
+    const va = a[key] ?? "";
+    const vb = b[key] ?? "";
+    const sa = diacriticless(String(va));
+    const sb = diacriticless(String(vb));
+    if (sa < sb) return dir === "asc" ? -1 : 1;
+    if (sa > sb) return dir === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  render();
+}
+
+/** ====== Events ====== **/
+document.getElementById("q").addEventListener("input", debounce(applyFilterAndSort, 120));
+document.querySelectorAll("th[data-key]").forEach(th => {
+  th.addEventListener("click", () => {
+    const key = th.getAttribute("data-key");
+    if (sortState.key === key) sortState.dir = sortState.dir === "asc" ? "desc" : "asc";
+    else { sortState.key = key; sortState.dir = "asc"; }
+    applyFilterAndSort();
+  });
+});
+
+function debounce(fn, ms=150){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); } }
+
+/** ====== Boot ====== **/
+(async function init() {
+  try {
+    const res = await fetch(CSV_URL);
+    if (!res.ok) throw new Error("Không tải được CSV. Kiểm tra quyền Publish.");
+    const text = await res.text();
+    const rows = parseCSV(text);
+    const objects = rowsToObjects(rows);
+    data = objects.map(mapRecord);
+    applyFilterAndSort();
+  } catch (e) {
+    alert("Lỗi tải dữ liệu: " + e.message);
+    console.error(e);
+  }
+})();
+</script>
+</body>
+</html>
