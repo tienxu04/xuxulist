@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 
-  <title>Thư mục Sách — xuxu</title>
+  <title>Danh sách review — @xuxudocsach</title>
 <style>
     /* ==== Material 3 · Matcha palette ==== */
     :root{
@@ -358,11 +358,11 @@ tbody td{ padding: 14px 16px; }
 </head>
 <body>
 <div class="wrap">
-  <h1>Thư mục sách</h1>
-  <div class="small">Nguồn: Google Sheets (read-only)</div>
+  <h1>Danh sách review — @xuxudocsach</h1>
+  <div class="small">Các bạn có thể sort theo header, hoặc tìm theo tựa / tác giả / thể loại / quốc gia trong thanh tìm kiếm bên dưới</div>
 
   <div class="toolbar">
-    <input id="q" type="search" placeholder="Tìm theo tựa / tác giả / thể loại / quốc gia / review…" />
+    <input id="q" size="60" type="search" placeholder="Gõ tựa/tác giả/thể loại/quốc gia" />
     <span class="count" id="count"></span>
   </div>
 <div class="sortgroup">
@@ -371,7 +371,6 @@ tbody td{ padding: 14px 16px; }
     <option value="genre">Thể loại</option>
     <option value="author">Tác giả</option>
     <option value="country">Quốc gia</option>
-    <option value="review">xuxu review</option>
   </select>
   <button id="sortDir" class="btn tonal" type="button" aria-label="Đổi thứ tự">
     ↑ A–Z
