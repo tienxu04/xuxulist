@@ -465,7 +465,9 @@ function linkify(text) {
 /** ====== State ====== **/
 let data = [];
 let filtered = [];
-let sortState = { key: "title", dir: "asc" };
+// let sortState = { key: "title", dir: "asc" };
+let sortState = { key: null, dir: "asc" };
+
 
 /** ====== Render ====== **/
 const tbody = document.querySelector("#table tbody");
