@@ -2,75 +2,98 @@
 <html lang="vi">
 <head>
   <meta charset="utf-8" />
-  <title>My Goodreads Reviews - xuxudocsach</title>
+  <title>Goodreads → Danh mục</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
-    /* ==== Material 3-ish Purple Theme ==== */
+    /* ==== Matcha Theme (light & dark) ==== */
     :root{
-      --m3-primary:#6a36f0; --m3-on-primary:#fff;
-      --m3-surface:#f1d0ff; --m3-on-surface:#241537;
-      --m3-surface-variant:#e3b8ff; --m3-outline:#c99cff;
-      --m3-elevated:#ffffff; --m3-shadow:#0000001a;
+      /* matcha light */
+      --pri:#41a37c;           /* lá matcha tươi */
+      --on-pri:#ffffff;
+      --surface:#eaf6f0;       /* nền trà sữa nhạt */
+      --on-surface:#0e1f18;    /* mực xanh đậm */
+      --surface-var:#d5efe3;   /* lớp phụ */
+      --outline:#a9dcc6;       /* viền nhạt xanh */
+      --elevated:#ffffff;      /* thẻ nổi */
+      --shadow:0 8px 18px rgba(10,60,40,.12);
+      --shadow-sm:0 6px 14px rgba(10,60,40,.10);
+      --hover: color-mix(in oklab, var(--surface-var) 45%, transparent);
     }
     @media (prefers-color-scheme: dark){
       :root{
-        --m3-surface:#1b1028; --m3-on-surface:#efe7f7;
-        --m3-surface-variant:#27183b; --m3-outline:#4e2f78;
-        --m3-elevated:#221433;
+        /* matcha dark */
+        --pri:#3fb586;
+        --on-pri:#072218;
+        --surface:#0e1713;
+        --on-surface:#e7f5ee;
+        --surface-var:#12201a;
+        --outline:#1f3c30;
+        --elevated:#121f19;
+        --shadow:0 8px 18px rgba(0,0,0,.35);
+        --shadow-sm:0 6px 14px rgba(0,0,0,.32);
+        --hover: color-mix(in oklab, var(--surface-var) 65%, transparent);
       }
     }
 
-    html,body{margin:0;padding:0;background:var(--m3-surface);color:var(--m3-on-surface);
-      font:15px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+    html,body{
+      margin:0; padding:0; background:var(--surface); color:var(--on-surface);
+      font:15px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial
+    }
     .wrap{max-width:1100px;margin:28px auto;padding:0 16px}
     h1{font-size:28px;margin:0 0 6px;font-weight:700}
-    .subtitle{margin:0 0 16px;color:color-mix(in oklab, var(--m3-on-surface) 72%, transparent)}
-    .chip{display:inline-block;padding:2px 10px;border-radius:999px;background:var(--m3-surface-variant);
-      border:1px solid var(--m3-outline);color:var(--m3-on-surface);font-size:12px}
-    .hero{height:56px;margin:0 0 14px;border-radius:18px;
+    .subtitle{margin:0 0 16px;color:color-mix(in oklab, var(--on-surface) 72%, transparent)}
+    .chip{display:inline-block;padding:2px 10px;border-radius:999px;background:var(--surface-var);
+      border:1px solid var(--outline);color:var(--on-surface);font-size:12px}
+
+    /* hero */
+    .hero{
+      height:56px;margin:0 0 14px;border-radius:18px;
       background:
-        radial-gradient(120px 60px at left 40px top -10px, var(--m3-primary) 30%, transparent 31%),
-        linear-gradient(90deg, var(--m3-surface-variant), var(--m3-surface));
-      border:1px solid var(--m3-outline);
+        radial-gradient(120px 60px at left 40px top -10px, var(--pri) 32%, transparent 33%),
+        linear-gradient(90deg, var(--surface-var), var(--surface));
+      border:1px solid var(--outline);
+      box-shadow: var(--shadow-sm);
     }
-    .card{background:var(--m3-elevated);border:1px solid var(--m3-outline);
-      border-radius:18px;box-shadow:0 8px 20px var(--m3-shadow);padding:10px}
-    .count{color:color-mix(in oklab, var(--m3-on-surface) 70%, transparent)}
+
+    .card{background:var(--elevated);border:1px solid var(--outline);
+      border-radius:18px;box-shadow:var(--shadow);padding:12px}
+
+    .count{color:color-mix(in oklab, var(--on-surface) 70%, transparent)}
 
     /* ======= TABLE (desktop) ======= */
     .table-wrap{overflow-x:auto;border-radius:12px}
     table{width:100%;border-collapse:collapse;min-width:780px}
     thead th{
-      text-align:left;font-weight:700;color:var(--m3-on-surface);
-      padding:12px 10px;border-bottom:2px solid var(--m3-outline);
-      background:linear-gradient(0deg,var(--m3-surface-variant),var(--m3-surface-variant));
+      text-align:left;font-weight:700;color:var(--on-surface);
+      padding:12px 10px;border-bottom:2px solid var(--outline);
+      background:linear-gradient(0deg,var(--surface-var),var(--surface-var));
       position:sticky;top:0;z-index:1;
     }
-    tbody td{padding:12px 10px;border-bottom:1px dashed var(--m3-outline);vertical-align:top}
-    tbody tr:hover{background:color-mix(in oklab, var(--m3-surface-variant) 35%, transparent)}
+    tbody td{padding:12px 10px;border-bottom:1px dashed var(--outline);vertical-align:top}
+    tbody tr:hover{background:var(--hover)}
     .title{font-weight:650}
-    .author{color:color-mix(in oklab, var(--m3-on-surface) 70%, transparent)}
+    .author{color:color-mix(in oklab, var(--on-surface) 70%, transparent)}
     .mono{font-variant-numeric:tabular-nums}
     .nowrap{white-space:nowrap}
-    .pill{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid var(--m3-outline)}
-    .pill.pri{background:var(--m3-primary);color:var(--m3-on-primary);border-color:transparent}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid var(--outline)}
+    .pill.pri{background:var(--pri);color:var(--on-pri);border-color:transparent}
     .desktop-only{display:block}
     .mobile-only{display:none}
 
     /* ======= CARDS (mobile) ======= */
-    .cards{display:grid;grid-template-columns:1fr;gap:12px}
+    .cards{display:grid;grid-template-columns:1fr;gap:18px}          /* tăng gap để hết “dính chùm” */
     .book{
-      background:var(--m3-elevated);border:1px solid var(--m3-outline);border-radius:16px;
-      padding:12px 12px 10px;box-shadow:0 6px 16px var(--m3-shadow)
+      background:var(--elevated);border:1px solid var(--outline);border-radius:18px;
+      padding:14px 14px 12px;box-shadow:var(--shadow);                /* bóng rõ hơn để tách lớp */
     }
-    .book h3{margin:0 0 4px;font-size:17px;line-height:1.35}
-    .book .meta{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;margin:6px 0 8px}
-    .badge{font-size:12px;border:1px solid var(--m3-outline);border-radius:999px;padding:2px 8px}
-    .badge.pri{background:var(--m3-primary);color:var(--m3-on-primary);border-color:transparent}
-    .muted{color:color-mix(in oklab, var(--m3-on-surface) 65%, transparent)}
-    .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;margin:4px 0 8px}
-    .kv .k{color:color-mix(in oklab, var(--m3-on-surface) 70%, transparent)}
+    .book h3{margin:0 0 6px;font-size:17px;line-height:1.35}
+    .book .meta{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;margin:8px 0 8px}
+    .badge{font-size:12px;border:1px solid var(--outline);border-radius:999px;padding:3px 9px}
+    .badge.pri{background:var(--pri);color:var(--on-pri);border-color:transparent}
+    .muted{color:color-mix(in oklab, var(--on-surface) 65%, transparent)}
+    .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:4px 0 8px}
+    .kv .k{color:color-mix(in oklab, var(--on-surface) 70%, transparent)}
     .review{margin-top:6px}
 
     /* breakpoint */
@@ -121,9 +144,9 @@
 
   <script>
     /* ==== CONFIG ==== */
-    const CSV_PATH = "goodreads_library_export.csv"; // cùng thư mục với index.html
+    const CSV_PATH = "goodreads_library_export.csv";
     const REVIEW_WORD_LIMIT = 50;
-    const ONLY_READ = true; // đặt true nếu muốn chỉ hiện "read"
+    const ONLY_READ = true;
 
     /* ==== HELPERS ==== */
     const $ = s => document.querySelector(s);
@@ -164,10 +187,9 @@
       };
     }
 
-    /* ===== RENDER: TABLE (desktop) ===== */
+    /* table (desktop) */
     function renderTable(rows){
-      const tbody = $("#table tbody");
-      if(!tbody) return;
+      const tbody = $("#table tbody"); if(!tbody) return;
       tbody.innerHTML = "";
       const frag = document.createDocumentFragment();
 
@@ -201,10 +223,9 @@
       tbody.appendChild(frag);
     }
 
-    /* ===== RENDER: CARDS (mobile) ===== */
+    /* cards (mobile) */
     function renderCards(rows){
-      const container = $("#cards");
-      if(!container) return;
+      const container = $("#cards"); if(!container) return;
       container.innerHTML = "";
       const frag = document.createDocumentFragment();
 
@@ -212,14 +233,8 @@
         const card = document.createElement("article");
         card.className = "book";
 
-        const h3 = document.createElement("h3");
-        h3.textContent = r.Title;
-        card.appendChild(h3);
-
-        const author = document.createElement("div");
-        author.className = "muted";
-        author.textContent = r.Author;
-        card.appendChild(author);
+        const h3 = document.createElement("h3"); h3.textContent = r.Title; card.appendChild(h3);
+        const author = document.createElement("div"); author.className = "muted"; author.textContent = r.Author; card.appendChild(author);
 
         const meta = document.createElement("div");
         meta.className = "meta";
@@ -242,7 +257,7 @@
         review.className = "review";
         review.textContent = r["My Review"] || "";
         if (r.__fullReview && r.__fullReview.length > review.textContent.length) {
-          review.title = r.__fullReview; // tooltip full
+          review.title = r.__fullReview;
         }
         card.appendChild(review);
 
@@ -252,19 +267,15 @@
       container.appendChild(frag);
     }
 
-    /* ===== LOAD CSV & RENDER BOTH ===== */
     function loadCSV(){
       Papa.parse(CSV_PATH,{
         download:true, header:true, skipEmptyLines:true,
         complete: (res)=>{
           let rows = res.data.map(normalizeRow);
           if(ONLY_READ) rows = rows.filter(r => String(r["Exclusive Shelf"]).trim().toLowerCase()==="read");
-
           renderTable(rows);   // desktop
           renderCards(rows);   // mobile
-
-          const count = rows.length ? `(${rows.length} sách)` : "(0)";
-          $("#count").textContent = " " + count;
+          $("#count").textContent = ` (${rows.length} sách)`;
           $("#status").textContent = "Đã tải xong.";
         },
         error: (err)=>{
