@@ -112,7 +112,7 @@
       Cột hiển thị: <span class="chip">Title</span> <span class="chip">Author</span>
       <span class="chip">My Rating</span> <span class="chip">Average Rating</span>
       <span class="chip">Publisher</span> <span class="chip">Date Read (mm-yyyy)</span>
-      <span class="chip">Exclusive Shelf</span> <span class="chip">My Review (50 chữ)</span>
+     <span class="chip">My Review (50 chữ)</span>
     </p>
 
     <div class="card">
@@ -127,7 +127,6 @@
               <th>Author</th>
               <th class="col-publisher">Publisher</th>
               <th class="nowrap">Date Read</th>
-              <th class="nowrap">Exclusive Shelf</th>
               <th class="nowrap">My Rating</th>
               <th class="nowrap col-avg">Average Rating</th>
               <th>My Review (50 chữ)</th>
@@ -179,7 +178,6 @@
         Author: row["Author"] ?? "",
         Publisher: row["Publisher"] ?? "",
         "Date Read": formatMonthYear(row["Date Read"] ?? ""),
-        "Exclusive Shelf": row["Exclusive Shelf"] ?? "",
         "My Rating": row["My Rating"] ?? "",
         "Average Rating": row["Average Rating"] ?? "",
         "My Review": clipWords(row["My Review"] ?? "", REVIEW_WORD_LIMIT),
@@ -207,8 +205,6 @@
         const tdPub = document.createElement("td"); tdPub.className="col-publisher"; tdPub.textContent = r.Publisher; tr.appendChild(tdPub);
 
         const tdDate = document.createElement("td"); tdDate.className="nowrap mono"; tdDate.textContent = r["Date Read"]; tr.appendChild(tdDate);
-
-        const tdShelf = document.createElement("td"); tdShelf.className="nowrap"; tdShelf.textContent = r["Exclusive Shelf"]; tr.appendChild(tdShelf);
 
         const tdMy = document.createElement("td"); tdMy.className="nowrap mono"; tdMy.innerHTML = `<span class="pill pri">${r["My Rating"]||"–"}</span>`; tr.appendChild(tdMy);
 
@@ -241,7 +237,6 @@
         meta.innerHTML = `
           <span class="badge pri">My ★ ${r["My Rating"] || "–"}</span>
           <span class="badge">Avg ★ ${r["Average Rating"] || "–"}</span>
-          <span class="badge">Shelf: ${r["Exclusive Shelf"] || "—"}</span>
         `;
         card.appendChild(meta);
 
